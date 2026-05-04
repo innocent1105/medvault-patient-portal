@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { isAuthed } from "@/lib/auth";
+import { isAuthed, currentUser } from "@/lib/auth";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -9,7 +9,12 @@ export const Route = createFileRoute("/")({
 function Index() {
   const navigate = useNavigate();
   useEffect(() => {
-    navigate({ to: isAuthed() ? "/dashboard" : "/login", replace: true });
+    if (!isAuthed()) {
+      navigate({ to: "/login", replace: true });
+      return;
+    }
+    const u = currentUser();
+    navigate({ to: u?.role === "doctor" ? "/doctor" : "/dashboard", replace: true });
   }, [navigate]);
   return (
     <div className="min-h-screen grid place-items-center bg-gradient-soft">
