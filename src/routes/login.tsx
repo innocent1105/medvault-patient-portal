@@ -1,7 +1,7 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
-import { Fingerprint, Loader2, Mail, Lock, ShieldCheck } from "lucide-react";
-import { login } from "@/lib/auth";
+import { Loader2, Mail, Lock, ShieldCheck, Stethoscope, User as UserIcon } from "lucide-react";
+import { login, type Role } from "@/lib/auth";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -15,22 +15,36 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const navigate = useNavigate();
+  const [role, setRole] = useState<Role>("patient");
   const [email, setEmail] = useState("chanda.mwansa@medvault.zm");
-  const [password, setPassword] = useState("••••••••");
+  const [password, setPassword] = useState("demo1234");
   const [loading, setLoading] = useState(false);
-  const [bioLoading, setBioLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleRoleChange = (next: Role) => {
+    setRole(next);
+    setError(null);
+    if (next === "doctor") {
+      setEmail("dr.banda@uth.zm");
+      setPassword("demo1234");
+    } else {
+      setEmail("chanda.mwansa@medvault.zm");
+      setPassword("demo1234");
+    }
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    await login();
-    navigate({ to: "/dashboard" });
-  };
-
-  const handleBio = async () => {
-    setBioLoading(true);
-    await login();
-    navigate({ to: "/dashboard" });
+    setError(null);
+    try {
+      const user = await login(email, password, role);
+      navigate({ to: user.role === "doctor" ? "/doctor" : "/dashboard" });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Sign-in failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -41,7 +55,28 @@ function LoginPage() {
             <ShieldCheck className="h-7 w-7 text-primary-foreground" />
           </div>
           <h1 className="text-2xl font-semibold tracking-tight">Welcome to MedVault</h1>
-          <p className="text-sm text-muted-foreground mt-1">Your health record, in your pocket.</p>
+          <p className="text-sm text-muted-foreground mt-1">Sign in to your account</p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 p-1 bg-muted rounded-xl mb-4">
+          <button
+            type="button"
+            onClick={() => handleRoleChange("patient")}
+            className={`flex items-center justify-center gap-2 h-9 rounded-lg text-sm font-medium transition ${
+              role === "patient" ? "bg-card shadow-card text-foreground" : "text-muted-foreground"
+            }`}
+          >
+            <UserIcon className="h-4 w-4" /> Patient
+          </button>
+          <button
+            type="button"
+            onClick={() => handleRoleChange("doctor")}
+            className={`flex items-center justify-center gap-2 h-9 rounded-lg text-sm font-medium transition ${
+              role === "doctor" ? "bg-card shadow-card text-foreground" : "text-muted-foreground"
+            }`}
+          >
+            <Stethoscope className="h-4 w-4" /> Doctor
+          </button>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-card border border-border rounded-2xl p-5 shadow-card space-y-4">
@@ -60,29 +95,21 @@ function LoginPage() {
             </div>
           </div>
 
+          {error && <p className="text-xs text-destructive">{error}</p>}
+
           <button
             type="submit"
             disabled={loading}
             className="w-full h-11 rounded-xl bg-gradient-primary text-primary-foreground font-medium shadow-elegant hover:opacity-95 active:opacity-90 transition flex items-center justify-center gap-2 disabled:opacity-70"
           >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-            Sign in
+            Sign in as {role === "doctor" ? "Doctor" : "Patient"}
           </button>
 
-          <div className="relative my-1 text-center">
-            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border" /></div>
-            <span className="relative bg-card px-3 text-[11px] uppercase tracking-wider text-muted-foreground">or</span>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleBio}
-            disabled={bioLoading}
-            className="w-full h-11 rounded-xl border border-border bg-secondary text-secondary-foreground font-medium hover:bg-accent hover:text-accent-foreground transition flex items-center justify-center gap-2"
-          >
-            {bioLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Fingerprint className="h-4 w-4" />}
-            Use biometric login
-          </button>
+          <p className="text-center text-xs text-muted-foreground">
+            Don't have an account?{" "}
+            <Link to="/signup" className="text-primary font-medium hover:underline">Create one</Link>
+          </p>
         </form>
 
         <p className="text-center text-xs text-muted-foreground mt-6">Protected with end-to-end encryption · Mock prototype</p>
