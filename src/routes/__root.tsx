@@ -33,10 +33,14 @@ export const Route = createRootRoute({
       { name: "description", content: "MedVault is a patient-centered digital health record for storing, viewing and securely sharing your medical history." },
       { name: "author", content: "MedVault" },
       { property: "og:title", content: "MedVault — Your health record, in your pocket" },
-      { property: "og:description", content: "Patient-centered digital health record system." },
+      { property: "og:description", content: "MedVault is a patient-centered digital health record for storing, viewing and securely sharing your medical history." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "MedVault — Your health record, in your pocket" },
+      { name: "twitter:description", content: "MedVault is a patient-centered digital health record for storing, viewing and securely sharing your medical history." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/e0d255c6-09b1-40f4-95e1-2a6b10852ad0/id-preview-fa1a1700--5b43d63b-06be-4a4a-bb78-531415eb8755.lovable.app-1777903060020.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/e0d255c6-09b1-40f4-95e1-2a6b10852ad0/id-preview-fa1a1700--5b43d63b-06be-4a4a-bb78-531415eb8755.lovable.app-1777903060020.png" },
     ],
     links: [
       {
